@@ -38,7 +38,7 @@ To provision a new thing based on the preconfigured template.
 iotprov create --type light --name kitchen_light
 ```
 
-To create a certificate, policy and link it to the thing you just created, this will save the credentials in `[name].yml` in the current directory.
+To create a certificate, policy and link it to the thing you just created, this will save the credentials in `[name].yml` in the current directory. For more information this process [Secure Communication Between a Thing and AWS IoT](https://docs.aws.amazon.com/iot/latest/developerguide/secure-communication.html).
 
 ```
 iotprov certificate --name kitchen_light
