@@ -5,14 +5,13 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/iot"
+	"github.com/aws/aws-sdk-go/service/iot/iotiface"
 	"github.com/spf13/cobra"
 )
 
 var (
 	// Version The version of the application (set by make file)
-	Version       = "UNKNOWN"
-	defaultRegion = "us-west-2"
+	Version = "UNKNOWN"
 
 	cmdRoot = &cobra.Command{
 		Use:   "iotprov",
@@ -24,24 +23,23 @@ var (
 		AWSDebug bool
 	}
 
-	svc = iot.New(newAWSConfig())
+	svc iotiface.IoTAPI
 )
 
 func init() {
 	cmdRoot.PersistentFlags().BoolVar(&rootOpts.AWSDebug, "aws-debug", false, "Log debug information from aws-sdk-go library")
 }
 
-func main() {
-	cmdRoot.Execute()
-}
-
 func newAWSConfig() *aws.Config {
 	c := aws.NewConfig()
-	c = c.WithRegion(defaultRegion)
 	if rootOpts.AWSDebug {
 		c = c.WithLogLevel(aws.LogDebug)
 	}
 	return c
+}
+
+func main() {
+	cmdRoot.Execute()
 }
 
 func stderr(msg string, args ...interface{}) {

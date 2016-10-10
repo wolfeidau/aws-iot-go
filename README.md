@@ -1,20 +1,24 @@
 # iot-aws-go
 
-This is a small project illustrating how to use golang to provision then connect to the [Amazon Webservices IoT Service](https://aws.amazon.com/iot/).
+This is a small project illustrating how to use [golang](https://golang.org/) to provision then connect to the [Amazon Webservices IoT Service](https://aws.amazon.com/iot/).
 
-# preperation
+# prerequisites
 
-To get started with this project you will need to register an [Amazon Webservices](https://aws.amazon.com/) account and download some credentials. I recommend following the [aws cli setup](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html).
+Firstly you need an Amazon Webservices (AWS) account to get started, I recommend this guide to get up and running with [Set Up an AWS Account and Create an Administrator User](http://docs.aws.amazon.com/lambda/latest/dg/setting-up.html).
+
+I then recommend following the [aws cli setup](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html) to configure your credentials.
 
 Once configured your credentials in the aws cli, and tested them, you are ready to follow the provision section below.
+
+*Note:* Make sure you enable the SES service before attempting to use IoT service, this MUST be activated otherwise you will get an error when you create a thing.
+
+# building
 
 Make sure you have `godep` installed and `$GOPATH/bin` is a in your `$PATH`.
 
 ```
 go get -u github.com/godep/godep
 ```
-
-# building
 
 Clone this project into your `$GOPATH`.
 
@@ -52,13 +56,13 @@ iotprov list --type light
 
 Some things to note:
 
-* Create is idemptotent as long as you have the matching type
+* Create is idempotent as long as you have the matching type
 * Currently defaults to us-west-2 as it is closest to Australia
 * This will attempt to load the default AWS credentials you loaded when configuring the aws cli or you can export `AWS_PROFILE` to specify one.
 
 # connect
 
-To connect the iot device using the credentials you just generated.
+To connect the IoT device using the credentials you just generated.
 
 ```
 iotdev connect --name kitchen_light --debug
@@ -66,4 +70,4 @@ iotdev connect --name kitchen_light --debug
 
 # License
 
-This code is released under the MIT license see the LICENSE.md file for more details.
+iot-aws-go is Copyright (c) 2015 Mark Wolfe @wolfeidau and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE.md file for more details.

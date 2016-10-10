@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iot"
 	"github.com/spf13/cobra"
 )
@@ -27,6 +28,8 @@ func init() {
 }
 
 func runCmdThingList(cmd *cobra.Command, args []string) {
+
+	svc = iot.New(session.New(), newAWSConfig())
 
 	resp, err := svc.ListThings(buildListThings())
 

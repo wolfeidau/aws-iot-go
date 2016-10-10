@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iot"
 	"github.com/spf13/cobra"
 	"github.com/wolfeidau/aws-iot-go/pkg/provision"
@@ -36,6 +37,7 @@ func init() {
 }
 
 func runCmdCreateCertificate(cmd *cobra.Command, args []string) {
+	svc = iot.New(session.New(), newAWSConfig())
 
 	err := checkExists(certificateThingName)
 
