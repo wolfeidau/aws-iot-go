@@ -2,13 +2,14 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
+	"github.com/eclipse/paho.mqtt.golang"
 
 	"github.com/spf13/cobra"
 	"github.com/wolfeidau/aws-iot-go/pkg/provision"
@@ -61,6 +62,7 @@ func runCmdThingConnect(cmd *cobra.Command, args []string) {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(serverURL)
 	opts.SetClientID(connectThingName).SetTLSConfig(tlsConfig)
+	opts.SetDefaultPublishHandler(handleChange)
 
 	if rootOpts.Debug {
 		mqtt.DEBUG = log.New(os.Stdout, "logger: ", log.Lshortfile)
@@ -74,7 +76,32 @@ func runCmdThingConnect(cmd *cobra.Command, args []string) {
 
 	stdout("connected to %s", serverURL)
 
-	c.Subscribe(fmt.Sprintf("%s/change", connectThingName), 0, handleChange)
+	// subscribe to the desired state topic for this thing
+	if token := c.Subscribe(fmt.Sprintf("$aws/things/%s/shadow/#", connectThingName), 0, nil); token.Wait() && token.Error() != nil {
+		stderr("Failed to subscribe to desired state topic: %v", token.Error())
+		os.Exit(1)
+	}
+
+	currentState := map[string]interface{}{
+		"state": map[string]interface{}{
+			"reported": map[string]interface{}{
+				"red":   187,
+				"green": 114,
+				"blue":  222,
+			},
+		},
+	}
+
+	b, err := json.Marshal(&currentState)
+
+	if err != nil {
+		stderr("Failed to serialise state: %v", err)
+		os.Exit(1)
+	}
+
+	if token := c.Publish(fmt.Sprintf("$aws/things/%s/shadow/status", connectThingName), 0, false, b); token.Wait() && token.Error() != nil {
+		stderr("Failed to publish thing state to update topic: %v", token.Error())
+	}
 
 	quitChannel := make(chan os.Signal)
 	signal.Notify(quitChannel, syscall.SIGINT, syscall.SIGTERM)
@@ -84,7 +111,7 @@ func runCmdThingConnect(cmd *cobra.Command, args []string) {
 	stdout("Received quit.")
 }
 
-func handleChange(client *mqtt.Client, msg mqtt.Message) {
+func handleChange(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("TOPIC: %s\n", msg.Topic())
 	fmt.Printf("MSG: %s\n", msg.Payload())
 }
