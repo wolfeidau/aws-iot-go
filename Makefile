@@ -1,2 +1,4 @@
-build:
-	${GOPATH}/bin/godep go install ./...
+install:
+	go install ./...
+
+.PHONY: install
